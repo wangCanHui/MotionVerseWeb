@@ -146,7 +146,7 @@ fileprivate final class RobotItemCell: UICollectionViewCell {
     // MARK: - Lazy UI
     private lazy var robotImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.backgroundColor = .green
+        imageView.backgroundColor = .white
         imageView.frame = CGRect(x: 0, y: 0, width: 70, height: 120)
         imageView.layer.cornerRadius = 10
         imageView.layer.masksToBounds = true

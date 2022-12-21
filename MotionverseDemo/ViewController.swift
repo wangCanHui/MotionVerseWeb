@@ -16,6 +16,10 @@ class ViewController: UIViewController, WKScriptMessageHandler,WKNavigationDeleg
     
     var exchangeType: ExchangeType = .play
     private var robot_index = 0
+    struct Status: Decodable {
+        let type: String
+        let data: Bool
+    }
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,8 +33,10 @@ class ViewController: UIViewController, WKScriptMessageHandler,WKNavigationDeleg
         _ = webView
         _ = bottomView
         _ = coverView
+        _ = indicatorView
         
-        let url = URL(string: "https://demo.deepscience.cn/poc/index.html")
+//        let url = URL(string: "https://demo.deepscience.cn/poc/index.html")
+        let url = URL(string: "https://avatar.deepscience.cn/v1/index.html?code=xVNEJ9ovjQ7EmOlnYO4TlRTB17zMOZOpaNqDyhZLU6BS5oKbvTZvhUc9YqlFaSOe20ooP3VN446VoqK3OoazZyBG4JV4FL+UQc1use3Xlu/deW5WLMq/25h0eOiV4XKk")
         let request = URLRequest(url: url!, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 60)
         
         let dataContent = try! Data(contentsOf: url!)
@@ -170,9 +176,30 @@ class ViewController: UIViewController, WKScriptMessageHandler,WKNavigationDeleg
         label.center = CGPoint(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height - bottom_height - 70 - 17.5)
         return label
     }()
+    
+    private lazy var indicatorView:UIActivityIndicatorView = {
+        let aiView = UIActivityIndicatorView(style: .large)
+        aiView.center = view.center
+        aiView.color = UIColor.gray
+        view.addSubview(aiView)
+        return aiView
+    }()
+    
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "jsBridge" {
             print(message.body)
+            let status = try! Status.decode(from: (message.body as! String).data(using: .utf8) ?? Data())
+            if (status.type == "loadAb"){
+                if (status.data){ // 开始
+                    indicatorView.startAnimating()
+                }else{ // 结束
+                    indicatorView.stopAnimating()
+                }
+            }else if (status.type == "playStart"){ // 开始播报
+                
+            }else if (status.type == "playEnd"){// 结束播报
+                
+            }
         }
     }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
