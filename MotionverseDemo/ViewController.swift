@@ -37,13 +37,14 @@ class ViewController: UIViewController, WKScriptMessageHandler,WKNavigationDeleg
         
 //        let url = URL(string: "https://demo.deepscience.cn/poc/index.html")
         let url = URL(string: "https://avatar.deepscience.cn/v1/index.html?code=xVNEJ9ovjQ7EmOlnYO4TlRTB17zMOZOpaNqDyhZLU6BS5oKbvTZvhUc9YqlFaSOe20ooP3VN446VoqK3OoazZyBG4JV4FL+UQc1use3Xlu/deW5WLMq/25h0eOiV4XKk")
+//        let url = URL(string: "http://36.138.170.224:8060/avatarx/")
         let request = URLRequest(url: url!, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 60)
         
-        let dataContent = try! Data(contentsOf: url!)
-        let cache = URLCache.shared
-        let response = URLResponse(url: url!, mimeType: "text/html/gz/fbx/wav/untiyweb/otf/ttf/woff/eot/js/json/svg/webp/css/png/jpg/jpeg", expectedContentLength: 0, textEncodingName: "UTF-8")
-        let cacheResponse = CachedURLResponse(response: response, data: dataContent)
-        cache.storeCachedResponse(cacheResponse, for: request)
+//        let dataContent = try! Data(contentsOf: url!)
+//        let cache = URLCache.shared
+//        let response = URLResponse(url: url!, mimeType: "text/html/gz/fbx/wav/untiyweb/otf/ttf/woff/eot/js/json/svg/webp/css/png/jpg/jpeg", expectedContentLength: 0, textEncodingName: "UTF-8")
+//        let cacheResponse = CachedURLResponse(response: response, data: dataContent)
+//        cache.storeCachedResponse(cacheResponse, for: request)
         
         
         self.webView.load(request)
@@ -103,6 +104,8 @@ class ViewController: UIViewController, WKScriptMessageHandler,WKNavigationDeleg
         }
         let aboutAction = UIAlertAction(title: "关于示例", style: .default) { action in
             self.about = Alert<AboutView>.alert(content: 260, intial: AboutView.State())
+//            self.webView.reload()
+            self.webView.reloadFromOrigin()
         }
         let cancel = UIAlertAction(title: "取消", style: .cancel)
         alert.addAction(robotAction)
@@ -129,8 +132,10 @@ class ViewController: UIViewController, WKScriptMessageHandler,WKNavigationDeleg
         return label
     }()
     private lazy var settingButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.setImage(UIImage(systemName: "ellipsis.circle"), for: .normal)
+        let button = UIButton(type: .system)
+//        button.setImage(UIImage(systemName: "ellipsis.circle"), for: .normal)
+        button.setImage(UIImage(named: "icon_setting"), for: .normal)
+//        button.setTitle("设置", for: .normal)
         button.frame = CGRect(x: UIScreen.main.bounds.size.width - 45, y: 2, width: 40, height: 40)
         button.addTarget(self, action: #selector(buttonAction(_:)), for: .touchUpInside)
         navView.addSubview(button)
@@ -188,17 +193,21 @@ class ViewController: UIViewController, WKScriptMessageHandler,WKNavigationDeleg
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "jsBridge" {
             print(message.body)
-            let status = try! Status.decode(from: (message.body as! String).data(using: .utf8) ?? Data())
-            if (status.type == "loadAb"){
-                if (status.data){ // 开始
-                    indicatorView.startAnimating()
-                }else{ // 结束
-                    indicatorView.stopAnimating()
+            do {
+                let status = try Status.decode(from: (message.body as! String).data(using: .utf8) ?? Data())
+                if (status.type == "loadAb"){
+                    if (status.data){ // 开始
+                        indicatorView.startAnimating()
+                    }else{ // 结束
+                        indicatorView.stopAnimating()
+                    }
+                }else if (status.type == "playStart"){ // 开始播报
+
+                }else if (status.type == "playEnd"){// 结束播报
+
                 }
-            }else if (status.type == "playStart"){ // 开始播报
-                
-            }else if (status.type == "playEnd"){// 结束播报
-                
+            }catch{
+                print("异常")
             }
         }
     }
